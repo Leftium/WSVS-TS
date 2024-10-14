@@ -219,7 +219,7 @@ export class WsvValue {
         for (let i = 0; i < value.length; i++) {
             const c = value.charCodeAt(i);
             switch (c) {
-                case 0x0022:
+                case 0x0027:
                 case 0x0023:
                 case 0x000A:
                 case 0x0009:
@@ -274,10 +274,10 @@ export class WsvValue {
             return "-";
         }
         else if (value.length === 0) {
-            return "\"\"";
+            return "''";
         }
         else if (value === "-") {
-            return "\"-\"";
+            return "'-'";
         }
         else if (WsvValue.containsSpecialChar(value)) {
             let size = 2;
@@ -287,7 +287,7 @@ export class WsvValue {
                     case 0x000A:
                         size += 3;
                         break;
-                    case 0x0022:
+                    case 0x0027:
                         size += 2;
                         break;
                     default:
@@ -296,23 +296,23 @@ export class WsvValue {
             }
             const bytes = new Uint8Array(size * 2);
             const view = new DataView(bytes.buffer);
-            view.setUint16(0, 0x0022, false);
+            view.setUint16(0, 0x0027, false);
             let index = 2;
             for (let i = 0; i < value.length; i++) {
                 const codeUnit = value.charCodeAt(i);
                 switch (codeUnit) {
                     case 0x000A:
-                        view.setUint16(index, 0x0022, false);
+                        view.setUint16(index, 0x0027, false);
                         index += 2;
                         view.setUint16(index, 0x002F, false);
                         index += 2;
-                        view.setUint16(index, 0x0022, false);
+                        view.setUint16(index, 0x0027, false);
                         index += 2;
                         break;
-                    case 0x0022:
-                        view.setUint16(index, 0x0022, false);
+                    case 0x0027:
+                        view.setUint16(index, 0x0027, false);
                         index += 2;
-                        view.setUint16(index, 0x0022, false);
+                        view.setUint16(index, 0x0027, false);
                         index += 2;
                         break;
                     default:
@@ -320,7 +320,7 @@ export class WsvValue {
                         index += 2;
                 }
             }
-            view.setUint16(index, 0x0022, false);
+            view.setUint16(index, 0x0027, false);
             return Utf16String.fromUtf16Bytes(bytes, false, false);
         }
         else {
@@ -399,7 +399,7 @@ export class WsvSerializer {
     }
 }
 // ----------------------------------------------------------------------
-export class WsvParser {
+class WsvParser {
     static parseLine(str, preserveWhitespacesAndComments, lineIndexOffset = 0) {
         const lines = WsvParser.parseLines(str, preserveWhitespacesAndComments, lineIndexOffset);
         if (lines.length !== 1) {
@@ -535,7 +535,7 @@ export class WsvParser {
                         }
                     }
                 }
-                if (codeUnit === 0x0022) {
+                if (codeUnit === 0x0027) {
                     index++;
                     const strCodeUnits = [];
                     stringCharLoop: for (;;) {
@@ -547,14 +547,14 @@ export class WsvParser {
                         switch (codeUnit) {
                             case 0x000A:
                                 throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index - 1);
-                            case 0x0022:
+                            case 0x0027:
                                 if (index >= str.length) {
                                     break stringCharLoop;
                                 }
                                 codeUnit = str.charCodeAt(index);
                                 switch (codeUnit) {
-                                    case 0x0022:
-                                        strCodeUnits.push("\"");
+                                    case 0x0027:
+                                        strCodeUnits.push("'");
                                         index++;
                                         break;
                                     case 0x000A:
@@ -590,7 +590,7 @@ export class WsvParser {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         codeUnit = str.charCodeAt(index);
-                                        if (codeUnit !== 0x0022) {
+                                        if (codeUnit !== 0x0027) {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         strCodeUnits.push("\n");
@@ -648,7 +648,7 @@ export class WsvParser {
                             case 0x205F:
                             case 0x3000:
                                 break valueCharLoop;
-                            case 0x0022:
+                            case 0x0027:
                                 throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index);
                         }
                         if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -778,7 +778,7 @@ export class WsvParser {
                         }
                     }
                 }
-                if (codeUnit === 0x0022) {
+                if (codeUnit === 0x0027) {
                     index++;
                     const strCodeUnits = [];
                     stringCharLoop: for (;;) {
@@ -790,14 +790,14 @@ export class WsvParser {
                         switch (codeUnit) {
                             case 0x000A:
                                 throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index - 1);
-                            case 0x0022:
+                            case 0x0027:
                                 if (index >= str.length) {
                                     break stringCharLoop;
                                 }
                                 codeUnit = str.charCodeAt(index);
                                 switch (codeUnit) {
-                                    case 0x0022:
-                                        strCodeUnits.push("\"");
+                                    case 0x0027:
+                                        strCodeUnits.push("'");
                                         index++;
                                         break;
                                     case 0x000A:
@@ -833,7 +833,7 @@ export class WsvParser {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         codeUnit = str.charCodeAt(index);
-                                        if (codeUnit !== 0x0022) {
+                                        if (codeUnit !== 0x0027) {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         strCodeUnits.push("\n");
@@ -891,7 +891,7 @@ export class WsvParser {
                             case 0x205F:
                             case 0x3000:
                                 break valueCharLoop;
-                            case 0x0022:
+                            case 0x0027:
                                 throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index);
                         }
                         if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -1021,7 +1021,7 @@ export class WsvParser {
                         }
                     }
                 }
-                if (codeUnit === 0x0022) {
+                if (codeUnit === 0x0027) {
                     index++;
                     const strCodeUnits = [];
                     stringCharLoop: for (;;) {
@@ -1033,14 +1033,14 @@ export class WsvParser {
                         switch (codeUnit) {
                             case 0x000A:
                                 throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index - 1);
-                            case 0x0022:
+                            case 0x0027:
                                 if (index >= str.length) {
                                     break stringCharLoop;
                                 }
                                 codeUnit = str.charCodeAt(index);
                                 switch (codeUnit) {
-                                    case 0x0022:
-                                        strCodeUnits.push("\"");
+                                    case 0x0027:
+                                        strCodeUnits.push("'");
                                         index++;
                                         break;
                                     case 0x000A:
@@ -1076,7 +1076,7 @@ export class WsvParser {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         codeUnit = str.charCodeAt(index);
-                                        if (codeUnit !== 0x0022) {
+                                        if (codeUnit !== 0x0027) {
                                             throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index);
                                         }
                                         strCodeUnits.push("\n");
@@ -1134,7 +1134,7 @@ export class WsvParser {
                             case 0x205F:
                             case 0x3000:
                                 break valueCharLoop;
-                            case 0x0022:
+                            case 0x0027:
                                 throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index);
                         }
                         if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -1168,8 +1168,9 @@ WsvParser.stringNotClosed = "String not closed";
 WsvParser.invalidStringLineBreak = "Invalid string line break";
 WsvParser.invalidCharacterAfterString = "Invalid character after string";
 WsvParser.invalidDoubleQuoteInValue = "Invalid double quote in value";
+export { WsvParser };
 // ----------------------------------------------------------------------
-export class BinaryWsvUtil {
+class BinaryWsvUtil {
     static getPreambleVersion1() {
         return new Uint8Array([0x42, 0x57, 0x31]);
     }
@@ -1178,6 +1179,7 @@ BinaryWsvUtil.lineBreakByte = 0b11111111;
 BinaryWsvUtil.valueSeparatorByte = 0b11111110;
 BinaryWsvUtil.nullValueByte = 0b11111101;
 BinaryWsvUtil.emptyStringByte = 0b11111100;
+export { BinaryWsvUtil };
 // ----------------------------------------------------------------------
 export class Uint8ArrayBuilder {
     constructor(initialSize = 4096) {
