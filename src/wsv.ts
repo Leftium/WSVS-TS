@@ -8,7 +8,7 @@ export class WsvParserError extends Error {
 	readonly index: number
 	readonly lineIndex: number
 	readonly linePosition: number
-	
+
 	constructor(index: number, lineIndex: number, linePosition: number, message: string) {
 		super(`${message} (${lineIndex+1}, ${linePosition+1})`)
 		this.index = index
@@ -63,7 +63,7 @@ export abstract class WsvStringUtil {
 
 export class WsvLine {
 	values: (string | null)[]
-	
+
 	private _whitespaces: (string | null)[] | null = null
 	private _comment: string | null = null
 
@@ -106,7 +106,7 @@ export class WsvLine {
 		this.whitespaces = whitespaces
 		this.comment = comment
 	}
-	
+
 	toString(preserveWhitespaceAndComment: boolean = true): string {
 		if (preserveWhitespaceAndComment) {
 			return WsvSerializer.internalSerializeValuesWhitespacesAndComment(this.values, this._whitespaces, this._comment)
@@ -114,7 +114,7 @@ export class WsvLine {
 			return WsvSerializer.serializeValues(this.values)
 		}
 	}
-	
+
 	static internal(values: (string | null)[], whitespaces: (string | null)[] | null, comment: string | null): WsvLine {
 		const line: WsvLine = new WsvLine(values)
 		line._whitespaces = whitespaces
@@ -215,7 +215,7 @@ export class WsvDocument {
 		const bytes = Base64String.decodeAsBytes(base64Str)
 		return this.fromBytes(bytes)
 	}
-	
+
 	static fromBinaryWsv(bytes: Uint8Array): WsvDocument {
 		return BinaryWsvDecoder.decode(bytes)
 	}
@@ -248,7 +248,7 @@ export abstract class WsvValue {
 		if (value === null || value.length === 0 || value === "-" || WsvValue.containsSpecialChar(value)) { return true }
 		else { return false }
 	}
-	
+
 	static serialize(value: string | null): string {
 		if (value === null) {
 			return "-"
@@ -383,7 +383,7 @@ export abstract class WsvParser {
 		if (lines.length !== 1) { throw new Error("Multiple WSV lines not allowed")}
 		return lines[0]
 	}
-	
+
 	static parseLines(str: string, preserveWhitespacesAndComments: boolean, lineIndexOffset: number = 0): WsvLine[] {
 		if (preserveWhitespacesAndComments) { return WsvParser.parseLinesPreserving(str, lineIndexOffset) }
 		else { return WsvParser.parseLinesNonPreserving(str, lineIndexOffset) }
@@ -397,7 +397,7 @@ export abstract class WsvParser {
 		const lines: WsvLine[] = []
 		let index: number = 0
 		let startIndex: number = 0
-		
+
 		let values: (string | null)[]
 		let whitespaces: (string | null)[]
 		let comment: string | null
@@ -553,9 +553,9 @@ export abstract class WsvParser {
 		const lines: WsvLine[] = []
 		let index: number = 0
 		let startIndex: number = 0
-		
+
 		let values: (string | null)[]
-		
+
 		let codeUnit: number
 		let lineIndex: number = lineIndexOffset - 1
 		let lineStartIndex: number
@@ -697,9 +697,9 @@ export abstract class WsvParser {
 		const lines: (string | null)[][] = []
 		let index: number = 0
 		let startIndex: number = 0
-		
+
 		let values: (string | null)[]
-		
+
 		let codeUnit: number
 		let lineIndex: number = lineIndexOffset - 1
 		let lineStartIndex: number
@@ -930,7 +930,7 @@ export abstract class BinaryWsvEncoder {
 			this.internalEncodeValues(line, builder)
 		}
 	}
-	
+
 	static internalEncode(document: WsvDocument, builder: Uint8ArrayBuilder) {
 		let wasFirst = true
 		for (const line of document.lines) {
@@ -991,7 +991,7 @@ export class Uint8ArrayReader {
 	buffer: Uint8Array
 	offset: number
 	private utf8Decoder: TextDecoder
-	
+
 	constructor(buffer: Uint8Array, offset: number) {
 		this.buffer = buffer
 		this.offset = offset
@@ -1041,7 +1041,7 @@ export class Uint8ArrayReader {
 			this.offset++
 			return true
 		}
-		
+
 		if (peekByte === BinaryWsvUtil.nullValueByte) {
 			values.push(null)
 			this.offset++
@@ -1100,7 +1100,7 @@ export abstract class BinaryWsvDecoder {
 	}
 
 	static decodeAsJaggedArray(bytes: Uint8Array, withPreamble: boolean = true): (string | null)[][] {
-		if (withPreamble === true) {	
+		if (withPreamble === true) {
 			const version = this.getVersion(bytes)
 			if (version !== "1") {
 				throw new Error(`Not supported BinaryWSV version '${version}'`)
@@ -1124,7 +1124,7 @@ export abstract class BinaryWsvDecoder {
 	}
 
 	static decode(bytes: Uint8Array, withPreamble: boolean = true): WsvDocument {
-		if (withPreamble === true) {	
+		if (withPreamble === true) {
 			const version = this.getVersion(bytes)
 			if (version !== "1") {
 				throw new Error(`Not supported BinaryWSV version '${version}'`)
