@@ -1,12 +1,12 @@
 {
   "name": "@stenway/wsv",
-  "version": "1.1.0",
+  "version": "0.0.1",
   "type": "module",
-  "description": "Encode and decode WSV documents",
-  "homepage": "https://www.whitespacesv.com",
-  "repository": "github:Stenway/WSV-TS",
+  "description": "Encode and decode WSVS documents",
+  "homepage": "https://github.com/Leftium/WSVS-TS",
+  "repository": "github.com:Leftium/WSVS-TS.git",
   "bugs": {
-    "url": "https://github.com/Stenway/WSV-TS/issues"
+    "url": "https://github.com/Leftium/WSVS-TS/issues"
   },
   "exports": "./dist/src/wsv.js",
   "types": "dist/src/wsv.d.ts",
@@ -32,7 +32,7 @@
     "bwsv",
     "bw1"
   ],
-  "author": "Stefan John",
+  "author": "Leftium",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.1",
