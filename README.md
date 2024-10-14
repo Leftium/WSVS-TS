@@ -1,4 +1,17 @@
-﻿# WSV
+﻿# WSVS
+
+ This is a port of WSV-TS, except singlequotes are used to delimit strings instead of doublequotes.
+ - Less escaping/looks nicer inside JSON.
+ - Singlequote typed without SHIFT key; doublequote requires SHIFT key.
+ - Visually simpler.
+
+Original WSV-TS project: https://github.com/Stenway/WSV-TS
+
+Original README below: 
+
+*(Not updated for singlequotes. Simply swap `doublequote` with `singlequote` for WSVS.)*
+
+---
 
 ## About WSV
 
