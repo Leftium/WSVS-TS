@@ -228,7 +228,7 @@ export abstract class WsvValue {
 		for (let i=0; i<value.length; i++) {
 			const c: number = value.charCodeAt(i)
 			switch (c) {
-			case 0x0022:
+			case 0x0027:
 			case 0x0023:
 			case 0x000A:
 			case 0x0009: case 0x000B: case 0x000C: case 0x000D: case 0x0020: case 0x0085: case 0x00A0: case 0x1680: case 0x2000: case 0x2001: case 0x2002: case 0x2003: case 0x2004: case 0x2005: case 0x2006: case 0x2007: case 0x2008: case 0x2009: case 0x200A: case 0x2028: case 0x2029: case 0x202F: case 0x205F: case 0x3000:
@@ -253,9 +253,9 @@ export abstract class WsvValue {
 		if (value === null) {
 			return "-"
 		} else if (value.length === 0) {
-			return "\"\""
+			return "''"
 		} else if (value === "-") {
-			return "\"-\""
+			return "'-'"
 		} else if (WsvValue.containsSpecialChar(value)) {
 			let size: number = 2
 			for (let i=0; i<value.length; i++) {
@@ -264,7 +264,7 @@ export abstract class WsvValue {
 				case 0x000A:
 					size += 3
 					break
-				case 0x0022:
+				case 0x0027:
 					size += 2
 					break
 				default:
@@ -273,23 +273,23 @@ export abstract class WsvValue {
 			}
 			const bytes: Uint8Array = new Uint8Array(size*2)
 			const view: DataView = new DataView(bytes.buffer)
-			view.setUint16(0, 0x0022, false)
+			view.setUint16(0, 0x0027, false)
 			let index: number = 2
 			for (let i=0; i<value.length; i++) {
 				const codeUnit: number = value.charCodeAt(i)
 				switch (codeUnit) {
 				case 0x000A:
-					view.setUint16(index, 0x0022, false)
+					view.setUint16(index, 0x0027, false)
 					index += 2
 					view.setUint16(index, 0x002F, false)
 					index += 2
-					view.setUint16(index, 0x0022, false)
+					view.setUint16(index, 0x0027, false)
 					index += 2
 					break
-				case 0x0022:
-					view.setUint16(index, 0x0022, false)
+				case 0x0027:
+					view.setUint16(index, 0x0027, false)
 					index += 2
-					view.setUint16(index, 0x0022, false)
+					view.setUint16(index, 0x0027, false)
 					index += 2
 					break
 				default:
@@ -297,7 +297,7 @@ export abstract class WsvValue {
 					index += 2
 				}
 			}
-			view.setUint16(index, 0x0022, false)
+			view.setUint16(index, 0x0027, false)
 			return Utf16String.fromUtf16Bytes(bytes, false, false)
 		} else {
 			return value
@@ -473,7 +473,7 @@ export abstract class WsvParser {
 					else { continue lineLoop }
 				}}
 
-				if (codeUnit === 0x0022) {
+				if (codeUnit === 0x0027) {
 					index++
 					const strCodeUnits: string[] = []
 					stringCharLoop: for (;;) {
@@ -483,12 +483,12 @@ export abstract class WsvParser {
 						switch (codeUnit) {
 						case 0x000A:
 							throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index-1)
-						case 0x0022:
+						case 0x0027:
 							if (index >= str.length) { break stringCharLoop }
 							codeUnit = str.charCodeAt(index)
 							switch (codeUnit) {
-							case 0x0022:
-								strCodeUnits.push("\"")
+							case 0x0027:
+								strCodeUnits.push("'")
 								index++
 								break
 							case 0x000A:
@@ -499,7 +499,7 @@ export abstract class WsvParser {
 								index++
 								if (index >= str.length) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								codeUnit = str.charCodeAt(index)
-								if (codeUnit !== 0x0022) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
+								if (codeUnit !== 0x0027) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								strCodeUnits.push("\n")
 								index++
 								break
@@ -527,7 +527,7 @@ export abstract class WsvParser {
 						case 0x0023:
 						case 0x0009: case 0x000B: case 0x000C: case 0x000D: case 0x0020: case 0x0085: case 0x00A0: case 0x1680: case 0x2000: case 0x2001: case 0x2002: case 0x2003: case 0x2004: case 0x2005: case 0x2006: case 0x2007: case 0x2008: case 0x2009: case 0x200A: case 0x2028: case 0x2029: case 0x202F: case 0x205F: case 0x3000:
 							break valueCharLoop
-						case 0x0022:
+						case 0x0027:
 							throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index)
 						}
 						if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -617,7 +617,7 @@ export abstract class WsvParser {
 					else { continue lineLoop }
 				}}
 
-				if (codeUnit === 0x0022) {
+				if (codeUnit === 0x0027) {
 					index++
 					const strCodeUnits: string[] = []
 					stringCharLoop: for (;;) {
@@ -627,12 +627,12 @@ export abstract class WsvParser {
 						switch (codeUnit) {
 						case 0x000A:
 							throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index-1)
-						case 0x0022:
+						case 0x0027:
 							if (index >= str.length) { break stringCharLoop }
 							codeUnit = str.charCodeAt(index)
 							switch (codeUnit) {
-							case 0x0022:
-								strCodeUnits.push("\"")
+							case 0x0027:
+								strCodeUnits.push("'")
 								index++
 								break
 							case 0x000A:
@@ -643,7 +643,7 @@ export abstract class WsvParser {
 								index++
 								if (index >= str.length) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								codeUnit = str.charCodeAt(index)
-								if (codeUnit !== 0x0022) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
+								if (codeUnit !== 0x0027) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								strCodeUnits.push("\n")
 								index++
 								break
@@ -671,7 +671,7 @@ export abstract class WsvParser {
 						case 0x0023:
 						case 0x0009: case 0x000B: case 0x000C: case 0x000D: case 0x0020: case 0x0085: case 0x00A0: case 0x1680: case 0x2000: case 0x2001: case 0x2002: case 0x2003: case 0x2004: case 0x2005: case 0x2006: case 0x2007: case 0x2008: case 0x2009: case 0x200A: case 0x2028: case 0x2029: case 0x202F: case 0x205F: case 0x3000:
 							break valueCharLoop
-						case 0x0022:
+						case 0x0027:
 							throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index)
 						}
 						if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
@@ -761,7 +761,7 @@ export abstract class WsvParser {
 					else { continue lineLoop }
 				}}
 
-				if (codeUnit === 0x0022) {
+				if (codeUnit === 0x0027) {
 					index++
 					const strCodeUnits: string[] = []
 					stringCharLoop: for (;;) {
@@ -771,12 +771,12 @@ export abstract class WsvParser {
 						switch (codeUnit) {
 						case 0x000A:
 							throw WsvParser.getError(WsvParser.stringNotClosed, lineIndex, lineStartIndex, index-1)
-						case 0x0022:
+						case 0x0027:
 							if (index >= str.length) { break stringCharLoop }
 							codeUnit = str.charCodeAt(index)
 							switch (codeUnit) {
-							case 0x0022:
-								strCodeUnits.push("\"")
+							case 0x0027:
+								strCodeUnits.push("'")
 								index++
 								break
 							case 0x000A:
@@ -787,7 +787,7 @@ export abstract class WsvParser {
 								index++
 								if (index >= str.length) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								codeUnit = str.charCodeAt(index)
-								if (codeUnit !== 0x0022) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
+								if (codeUnit !== 0x0027) { throw WsvParser.getError(WsvParser.invalidStringLineBreak, lineIndex, lineStartIndex, index) }
 								strCodeUnits.push("\n")
 								index++
 								break
@@ -815,7 +815,7 @@ export abstract class WsvParser {
 						case 0x0023:
 						case 0x0009: case 0x000B: case 0x000C: case 0x000D: case 0x0020: case 0x0085: case 0x00A0: case 0x1680: case 0x2000: case 0x2001: case 0x2002: case 0x2003: case 0x2004: case 0x2005: case 0x2006: case 0x2007: case 0x2008: case 0x2009: case 0x200A: case 0x2028: case 0x2029: case 0x202F: case 0x205F: case 0x3000:
 							break valueCharLoop
-						case 0x0022:
+						case 0x0027:
 							throw WsvParser.getError(WsvParser.invalidDoubleQuoteInValue, lineIndex, lineStartIndex, index)
 						}
 						if (codeUnit >= 0xD800 && codeUnit <= 0xDFFF) {
